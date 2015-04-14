@@ -34,7 +34,7 @@ class Ui:
         self.startcol = int(float(self.x)/5)
         self.indented_startcol = max(self.startcol - 3, 0)
         self.update_space()
-        
+
 
     def build_playinfo(self, song_name, artist, album_name, quality, pause=False):
         curses.noecho()
@@ -44,14 +44,14 @@ class Ui:
         self.screen.move(2, 1)
         self.screen.clrtoeol()
         if pause:
-            self.screen.addstr(1, self.indented_startcol, '_ _ z Z Z ' + quality, curses.color_pair(3))
+            self.screen.addstr(1, self.indented_startcol, '❙❙ ' + quality, curses.color_pair(3))
         else:
-            self.screen.addstr(1, self.indented_startcol, '♫  ♪ ♫  ♪ ' + quality, curses.color_pair(3))
+            self.screen.addstr(1, self.indented_startcol, '►  ' + quality, curses.color_pair(3))
         self.screen.addstr(1, min(self.indented_startcol + 18, self.x-1), song_name + self.space + artist + '  < ' + album_name + ' >', curses.color_pair(4))
         self.screen.refresh()
 
     def build_loading(self):
-        self.screen.addstr(6, self.startcol, '享受高品质音乐，loading...', curses.color_pair(1))
+        self.screen.addstr(6, self.startcol, 'Loading...', curses.color_pair(1))
         self.screen.refresh()
 
 
@@ -301,7 +301,7 @@ class Ui:
         size = terminalsize.get_terminal_size()
         self.x = max(size[0], 10)
         self.y = max(size[1], 25)
-        
+
         # update intendations
         curses.resizeterm(self.y, self.x)
         self.startcol = int(float(self.x)/5)

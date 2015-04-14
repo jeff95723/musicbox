@@ -7,7 +7,7 @@
 
 
 '''
-网易云音乐 Menu
+Cloud Menu
 '''
 
 import curses
@@ -33,7 +33,7 @@ locale.setlocale(locale.LC_ALL, "")
 code = locale.getpreferredencoding()
 
 # carousel x in [left, right]
-carousel = lambda left, right, x: left if (x > right) else (right if x < left else x)
+carousel = lambda left, right, x: left if (x / right) else (right if x < left else x)
 
 shortcut = [
     ['j', 'Down      ', '下移'],
@@ -70,7 +70,7 @@ class Menu:
         reload(sys)
         sys.setdefaultencoding('UTF-8')
         self.datatype = 'main'
-        self.title = '网易云音乐'
+        self.title = 'Cloud'
         self.datalist = ['排行榜', '艺术家', '新碟上架', '精选歌单', '我的歌单', 'DJ节目', '打碟', '收藏', '搜索', '帮助']
         self.offset = 0
         self.index = 0
@@ -173,7 +173,7 @@ class Menu:
                     continue
                 self.offset -= step
 
-                # e.g. 23 - 10 = 13 --> 10
+                # e.g. 23 - 10 = 13 --/ 10
                 self.index = (index - step) // step * step
 
             # 向下翻页
@@ -182,7 +182,7 @@ class Menu:
                     continue
                 self.offset += step
 
-                # e.g. 23 + 10 = 33 --> 30
+                # e.g. 23 + 10 = 33 --/ 30
                 self.index = (index + step) // step * step
 
             # 前进
@@ -278,7 +278,7 @@ class Menu:
             elif key == ord('z'):
                 self.stack.append([datatype, title, datalist, offset, index])
                 self.datatype = 'songs'
-                self.title = '网易云音乐 > 打碟'
+                self.title = 'Cloud / 打碟'
                 self.datalist = self.djstack
                 self.offset = 0
                 self.index = 0
@@ -292,7 +292,7 @@ class Menu:
             elif key == ord('c'):
                 self.stack.append([datatype, title, datalist, offset, index])
                 self.datatype = 'songs'
-                self.title = '网易云音乐 > 收藏'
+                self.title = 'Cloud / 收藏'
                 self.datalist = self.collection
                 self.offset = 0
                 self.index = 0
@@ -368,7 +368,7 @@ class Menu:
             songs = netease.artists(artist_id)
             self.datatype = 'songs'
             self.datalist = netease.dig_info(songs, 'songs')
-            self.title += ' > ' + datalist[idx]['artists_name']
+            self.title += ' / ' + datalist[idx]['artists_name']
 
         # 该专辑包含的歌曲
         elif datatype == 'albums':
@@ -376,14 +376,14 @@ class Menu:
             songs = netease.album(album_id)
             self.datatype = 'songs'
             self.datalist = netease.dig_info(songs, 'songs')
-            self.title += ' > ' + datalist[idx]['albums_name']
+            self.title += ' / ' + datalist[idx]['albums_name']
 
         # 精选歌单选项
         elif datatype == 'playlists':
             data = self.datalist[idx]
             self.datatype = data['datatype']
             self.datalist = netease.dig_info(data['callback'](), self.datatype)
-            self.title += ' > ' + data['title']
+            self.title += ' / ' + data['title']
 
         # 全站置顶歌单包含的歌曲
         elif datatype == 'top_playlists':
@@ -392,7 +392,7 @@ class Menu:
             songs = netease.playlist_detail(playlist_id)
             self.datatype = 'songs'
             self.datalist = netease.dig_info(songs, 'songs')
-            self.title += ' > ' + datalist[idx]['playlists_name']
+            self.title += ' / ' + datalist[idx]['playlists_name']
 
         # 分类精选
         elif datatype == 'playlist_classes':
@@ -400,7 +400,7 @@ class Menu:
             data = self.datalist[idx]
             self.datatype = 'playlist_class_detail'
             self.datalist = netease.dig_info(data, self.datatype)
-            self.title += ' > ' + data
+            self.title += ' / ' + data
             log.debug(self.datalist)
 
         # 某一分类的详情
@@ -410,12 +410,12 @@ class Menu:
             self.datatype = 'top_playlists'
             self.datalist = netease.dig_info(netease.top_playlists(data), self.datatype)
             log.debug(self.datalist)
-            self.title += ' > ' + data
+            self.title += ' / ' + data
 
         # 歌曲榜单
         elif datatype == 'toplists':
             songs = netease.top_songlist(idx)
-            self.title += ' > ' + self.datalist[idx]
+            self.title += ' / ' + self.datalist[idx]
             self.datalist = netease.dig_info(songs, 'songs')
             self.datatype = 'songs'
 
@@ -454,21 +454,21 @@ class Menu:
         netease = self.netease
         if idx == 0:
             self.datalist=netease.return_toplists()
-            self.title += ' > 排行榜'
+            self.title += ' / 排行榜'
             self.datatype = 'toplists'
 
         # 艺术家
         elif idx == 1:
             artists = netease.top_artists()
             self.datalist = netease.dig_info(artists, 'artists')
-            self.title += ' > 艺术家'
+            self.title += ' / 艺术家'
             self.datatype = 'artists'
 
         # 新碟上架
         elif idx == 2:
             albums = netease.new_albums()
             self.datalist = netease.dig_info(albums, 'albums')
-            self.title += ' > 新碟上架'
+            self.title += ' / 新碟上架'
             self.datatype = 'albums'
 
         # 精选歌单
@@ -485,7 +485,7 @@ class Menu:
                     'callback': netease.playlist_classes
                 }
             ]
-            self.title += ' > 精选歌单'
+            self.title += ' / 精选歌单'
             self.datatype = 'playlists'
 
         # 我的歌单
@@ -510,36 +510,36 @@ class Menu:
             myplaylist = netease.user_playlist(self.userid)
             self.datatype = 'top_playlists'
             self.datalist = netease.dig_info(myplaylist, self.datatype)
-            self.title += ' > ' + self.username + ' 的歌单'
+            self.title += ' / ' + self.username + ' 的歌单'
 
         # DJ节目
         elif idx == 5:
             self.datatype = 'djchannels'
-            self.title += ' > DJ节目'
+            self.title += ' / DJ节目'
             self.datalist = netease.djchannels()
 
         # 打碟
         elif idx == 6:
             self.datatype = 'songs'
-            self.title += ' > 打碟'
+            self.title += ' / 打碟'
             self.datalist = self.djstack
 
         # 收藏
         elif idx == 7:
             self.datatype = 'songs'
-            self.title += ' > 收藏'
+            self.title += ' / 收藏'
             self.datalist = self.collection
 
         # 搜索
         elif idx == 8:
             self.datatype = 'search'
-            self.title += ' > 搜索'
+            self.title += ' / 搜索'
             self.datalist = ['歌曲', '艺术家', '专辑', '网易精选集']
 
         # 帮助
         elif idx == 9:
             self.datatype = 'help'
-            self.title += ' > 帮助'
+            self.title += ' / 帮助'
             self.datalist = shortcut
 
         self.offset = 0
